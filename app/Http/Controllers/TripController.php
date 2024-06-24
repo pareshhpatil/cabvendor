@@ -325,7 +325,7 @@ class TripController extends Controller
         $trip_id = $_POST['trip_id'];
         $detail = $this->master_model->getMasterDetail('trip', 'trip_id', $trip_id);
         $data['date'] = date('Y-m-d', strtotime($request->date));
-        $data['time'] = date('H:i:s', strtotime($request->time));
+        $data['time'] = date('H:i:s', strtotime($request->pickup_time));
         //$data['date'] = $request->date;
         // $data['time'] = $request->time;
         $data['passengers'] = $request->passengers;
