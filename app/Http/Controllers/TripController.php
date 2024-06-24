@@ -324,8 +324,10 @@ class TripController extends Controller
         //$data = $_POST;
         $trip_id = $_POST['trip_id'];
         $detail = $this->master_model->getMasterDetail('trip', 'trip_id', $trip_id);
-        $data['date'] = $request->date;
-        $data['time'] = $request->time;
+        $data['date'] = date('Y-m-d', strtotime($request->date));
+        $data['time'] = date('H:i:s', strtotime($request->time));
+        //$data['date'] = $request->date;
+        // $data['time'] = $request->time;
         $data['passengers'] = $request->passengers;
         $data['total_passengers'] = $request->total_passengers;
         $data['pickup_location'] = $request->pickup_location;
@@ -352,9 +354,9 @@ class TripController extends Controller
             $ride_data['vehicle_id'] = $_POST['vehicle_id'];
         }
 
-        $ride_data['date'] = $detail->date;
-        $ride_data['start_time'] = $detail->date . ' ' . $detail->time;
-        $ride_data['end_time'] = $detail->date . ' ' . $detail->time;
+        $ride_data['date'] = $data['date'];
+        $ride_data['start_time'] = $data['date'] . ' ' . $data['time'];
+        $ride_data['end_time'] = $data['date'] . ' ' . $data['time'];
 
         $ride_data['start_location'] = $detail->pickup_location;
         $ride_data['end_location'] = $detail->drop_location;
@@ -367,7 +369,9 @@ class TripController extends Controller
 
         $this->trip_model->updateTable('ride_passenger', 'ride_id', $detail->ride_id, $rpdata);
         $this->client->get('https://app.siddhivinayaktravelshouse.in/notification/trip/detail/' . $trip_id);
-        return view('trip.saved', $data);
+        $this->setSuccess('Trip has been send successfully');
+        header('Location: /trip/list/all');
+        exit;
     }
 
     public function completesave(Request $request)
