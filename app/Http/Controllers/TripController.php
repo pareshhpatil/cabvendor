@@ -321,7 +321,7 @@ class TripController extends Controller
     public function scheduleupdate(Request $request)
     {
         $this->validateSession(array(1, 4));
-        $data = $_POST;
+        //$data = $_POST;
         $trip_id = $_POST['trip_id'];
         $detail = $this->master_model->getMasterDetail('trip', 'trip_id', $trip_id);
         $data['date'] = $request->date;
