@@ -207,21 +207,23 @@ class Trip extends Model
 
     public function getTripList($user_id, $array)
     {
-        $retObj = DB::table('trip_request')
-            ->select(DB::raw('*'))
-            ->where('is_active', 1)
-            ->where('created_by', $user_id)
-            ->whereIn('status', $array)
+        $retObj = DB::table('trip_request as a')
+            ->join('company as v', 'v.company_id', '=', 'a.company_id')
+            ->select(DB::raw('a.*,v.name as company_name'))
+            ->where('a.is_active', 1)
+            ->where('a.created_by', $user_id)
+            ->whereIn('a.status', $array)
             ->get();
         return $retObj;
     }
 
     public function getAdminTripList($array)
     {
-        $retObj = DB::table('trip_request')
-            ->select(DB::raw('*'))
-            ->where('is_active', 1)
-            ->whereIn('status', $array)
+        $retObj = DB::table('trip_request as a')
+            ->join('company as v', 'v.company_id', '=', 'a.company_id')
+            ->select(DB::raw('a.*,v.name as company_name'))
+            ->where('a.is_active', 1)
+            ->whereIn('a.status', $array)
             ->get();
         return $retObj;
     }

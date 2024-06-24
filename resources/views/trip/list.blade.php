@@ -15,6 +15,7 @@
                     <thead>
                         <tr>
                             <th>Trip #</th>
+                            <th>Company</th>
                             <th>Vehicle Type </th>
                             <th>Date Time </th>
                             <th>Pickup location </th>
@@ -28,6 +29,7 @@
                         @foreach ($list as $item)
                         <tr class="odd gradeX">
                             <td>{{$item->req_id}}</td>
+                            <td>{{$item->company_name}}</td>
                             <td>{{$item->vehicle_type}}</td>
                             <td>{{ \Carbon\Carbon::parse($item->date)->format('d M Y')}} {{ \Carbon\Carbon::parse($item->time)->format('h:i A')}}</td>
                             <td>{{$item->pickup_location}}</td>
