@@ -158,6 +158,24 @@ class TripController extends Controller
         return view('trip.schedule', $data);
     }
 
+    public function update($link)
+    {
+        $this->validateSession(array(1, 4));
+        $id = $this->encrypt->decode($link);
+        $vehicle_list = $this->master_model->getMaster('vehicle', $this->admin_id, 'admin_id');
+        $employee_list = $this->master_model->getMaster('employee', $this->admin_id, 'admin_id');
+        $detail = $this->master_model->getMasterDetail('trip', 'trip_id', $id);
+        $data['vehicle_list'] = $vehicle_list;
+        $data['employee_list'] = $employee_list;
+        $data['det'] = $detail;
+        $data['trip_id'] = $id;
+        $data['title'] = 'Trip Update';
+        return view('trip.update', $data);
+    }
+
+
+
+
     public function packagesave()
     {
         $id = $this->trip_model->savePackage($_POST, $this->admin_id, $this->user_id);
@@ -296,6 +314,60 @@ class TripController extends Controller
         $data['success'] = 'Trip has been scheduled successfully';
         $data['link'] = $link;
 
+        $this->client->get('https://app.siddhivinayaktravelshouse.in/notification/trip/detail/' . $trip_id);
+        return view('trip.saved', $data);
+    }
+
+    public function scheduleupdate(Request $request)
+    {
+        $this->validateSession(array(1, 4));
+        $data = $_POST;
+        $trip_id = $_POST['trip_id'];
+        $detail = $this->master_model->getMasterDetail('trip', 'trip_id', $trip_id);
+        $data['date'] = $request->date;
+        $data['time'] = $request->time;
+        $data['passengers'] = $request->passengers;
+        $data['total_passengers'] = $request->total_passengers;
+        $data['pickup_location'] = $request->pickup_location;
+        $data['drop_location'] = $request->drop_location;
+        $data['emails'] = $request->emails;
+        $data['mobiles'] = $request->mobiles;
+        $data['admin_id'] = $this->admin_id;
+        $data['note'] = $detail->note;
+        $this->trip_model->updateTable('trip', 'trip_id', $trip_id, $data);
+        if ($detail->employee_id != $_POST['employee_id']) {
+            $employee = $this->master_model->getMasterDetail('employee', 'employee_id', $_POST['employee_id']);
+            $driver_id = $this->master_model->getMasterValue('driver', 'mobile', $employee->mobile, 'id');
+            if ($driver_id == false) {
+                $driver_data['name'] = $employee->name;
+                $driver_data['mobile'] = $employee->mobile;
+                $driver_data['address'] = $employee->address;
+                $driver_data['license'] = $employee->license;
+                $driver_id = $this->trip_model->saveDriver($driver_data, $this->user_id);
+            }
+            $ride_data['driver_id'] = $driver_id;
+        }
+
+        if ($detail->vehicle_id != $_POST['vehicle_id']) {
+            $ride_data['vehicle_id'] = $_POST['vehicle_id'];
+        }
+
+        if ($detail->date != $request->date || $detail->time != $request->time) {
+            $ride_data['date'] = $detail->date;
+            $ride_data['start_time'] = $detail->date . ' ' . $detail->time;
+            $ride_data['end_time'] = $detail->date . ' ' . $detail->time;
+        }
+
+        $ride_data['start_location'] = $detail->pickup_location;
+        $ride_data['end_location'] = $detail->drop_location;
+
+        $this->trip_model->updateTable('ride', 'id', $detail->ride_id, $ride_data);
+
+        $rpdata['pickup_time'] = $ride_data['start_time'];
+        $rpdata['pickup_location'] = $ride_data['start_location'];
+        $rpdata['drop_location'] = $ride_data['end_location'];
+
+        $this->trip_model->updateTable('ride_passenger', 'ride_id', $detail->ride_id, $rpdata);
         $this->client->get('https://app.siddhivinayaktravelshouse.in/notification/trip/detail/' . $trip_id);
         return view('trip.saved', $data);
     }

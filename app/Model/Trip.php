@@ -198,6 +198,13 @@ class Trip extends Model
             ]);
     }
 
+    public function updateTable($table, $id_col, $id, $data)
+    {
+        DB::table($table)
+            ->where($id_col, $id)
+            ->update($data);
+    }
+
     public function getTripList($user_id, $array)
     {
         $retObj = DB::table('trip_request')

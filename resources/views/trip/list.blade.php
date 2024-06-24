@@ -40,6 +40,7 @@
                             <td>
                                 @if($item->status=='Assigned')
                                 <a href="/trip/complete/{{$item->link}}" target="_BLANK" class="btn btn-xs btn-primary">Complete</a>
+                                <a href="/trip/update/{{$item->link}}" target="_BLANK" class="btn btn-xs btn-warning">Update</a>
                                 @endif
                                 @if($item->status=='Completed')
                                 <a href="/trip/complete/detail/{{$item->link}}" target="_BLANK" class="btn btn-xs btn-primary">Detail</a>
