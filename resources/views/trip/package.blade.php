@@ -23,6 +23,7 @@
                         <option value="SUV">SUV</option>
                         <option value="Crysta">Crysta</option>
                         <option value="Hatchback">Hatchback</option>
+                        <option value="Fortuner">Fortuner</option>
                     </select>
                 </div>
             </div>
