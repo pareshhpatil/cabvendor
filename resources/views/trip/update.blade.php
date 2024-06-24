@@ -14,7 +14,7 @@
             <div class="form-group">
                 <label class="control-label col-md-4">Date :<span class="required"></span></label>
                 <div class="col-md-7">
-                    <input type="text" name="date" readonly="" value="{{$det->date}}" autocomplete="off" class="form-control form-control-inline date-picker" data-date-format="dd M yyyy">
+                    <input type="text" name="date" readonly="" value="{{ \Carbon\Carbon::parse($det->date)->format('d M yyyy')}}" autocomplete="off" class="form-control form-control-inline date-picker" data-date-format="dd M yyyy">
                 </div>
             </div>
             <div class="form-group">

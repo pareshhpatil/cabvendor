@@ -352,11 +352,9 @@ class TripController extends Controller
             $ride_data['vehicle_id'] = $_POST['vehicle_id'];
         }
 
-        if ($detail->date != $request->date || $detail->time != $request->time) {
-            $ride_data['date'] = $detail->date;
-            $ride_data['start_time'] = $detail->date . ' ' . $detail->time;
-            $ride_data['end_time'] = $detail->date . ' ' . $detail->time;
-        }
+        $ride_data['date'] = $detail->date;
+        $ride_data['start_time'] = $detail->date . ' ' . $detail->time;
+        $ride_data['end_time'] = $detail->date . ' ' . $detail->time;
 
         $ride_data['start_location'] = $detail->pickup_location;
         $ride_data['end_location'] = $detail->drop_location;
