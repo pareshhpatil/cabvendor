@@ -27,7 +27,7 @@ class MasterController extends Controller
     function __construct()
     {
         parent::__construct();
-        $this->validateSession(array(1, 4));
+        $this->validateSession(array(1, 4, 2));
         $this->master_model = new Master();
     }
 
