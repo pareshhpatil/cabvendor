@@ -39,6 +39,8 @@
                 </div>
             </div>
 
+           
+
             <div class="form-group">
                 <label class="control-label col-md-4">Pickup Location :<span class="required"></span></label>
                 <div class="col-md-7">
@@ -49,6 +51,19 @@
                 <label class="control-label col-md-4">Drop Location :<span class="required"> </span></label>
                 <div class="col-md-7">
                     <label class="control-label"> {{$det->drop_location}}</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-4">Start Time :<span class="required"></span></label>
+                <div class="col-md-7">
+                    <label class="control-label">  {{ \Carbon\Carbon::parse($det->start_time)->format('d M Y h:i A')}}</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-4">End Time :<span class="required"></span></label>
+                <div class="col-md-7">
+                    <label class="control-label">  {{ \Carbon\Carbon::parse($det->end_time)->format('d M Y h:i A')}}</label>
                 </div>
             </div>
             <div class="form-group">
