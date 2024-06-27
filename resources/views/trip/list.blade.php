@@ -36,20 +36,22 @@
                             <td>{{$item->drop_location}}</td>
                             <td>{{$item->passengers}}</td>
                             <td>
-                            {{$item->status}}
-                                
+                                {{$item->status}}
+
                             </td>
                             <td>
                                 @if($item->status=='Assigned')
                                 <a href="/trip/complete/{{$item->link}}" target="_BLANK" class="btn btn-xs btn-primary">Complete</a>
                                 <a href="/trip/update/{{$item->link}}" target="_BLANK" class="btn btn-xs btn-warning">Update</a>
+                                <a href="#" onclick="document.getElementById('deleteanchor').href = '/admin/trip/delete/{{$item->link}}'" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modal-danger"><i class="fa fa-remove"></i></a>
                                 @endif
                                 @if($item->status=='Completed')
                                 <a href="/trip/complete/detail/{{$item->link}}" target="_BLANK" class="btn btn-xs btn-primary">Detail</a>
                                 @endif
-                                
                                 @if($login_type!='client' && $item->status=='Requested')
                                 <a href="/trip/schedule/{{$item->req_link}}" target="_BLANK" class="btn btn-xs btn-warning">Schedule</a>
+                                <a href="#" onclick="document.getElementById('deleteanchor').href = '/admin/trip_request/delete/{{$item->req_link}}'" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modal-danger"><i class="fa fa-remove"></i></a>
+
                                 @endif
                             </td>
                         </tr>
@@ -71,10 +73,10 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Delete Company</h4>
+                <h4 class="modal-title">Delete Record</h4>
             </div>
             <div class="modal-body">
-                <p>Are you sure you would not like to use this company in the future?</p>
+                <p>Are you sure you would not like to use this Record in the future?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" data-dismiss="modal">Close</button>

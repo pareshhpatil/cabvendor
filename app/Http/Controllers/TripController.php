@@ -377,7 +377,7 @@ class TripController extends Controller
     public function completesave(Request $request)
     {
 
-
+        dd($request->all());
 
         $this->validateSession(array(1, 4));
         $data = [];
@@ -405,6 +405,8 @@ class TripController extends Controller
         }
 
         $data['attachments'] = implode(',', $files);
+        $data['start_time'] = str_replace('T', ' ', $request->start_time);
+        $data['end_time'] = str_replace('T', ' ', $request->end_time);
         $data['package_amount'] = $package->package_amount;
         $data['extra_km_amount'] = $package->extra_km * $data['extra_km'];
         $data['extra_hour_amount'] = $package->extra_hour * $data['extra_hour'];

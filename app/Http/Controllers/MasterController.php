@@ -114,6 +114,8 @@ class MasterController extends Controller
             $this->master_model->deleteReccord($master, 'invoice_id', $id, $this->user_id);
         } elseif ($master == 'company_casual_package') {
             $this->master_model->deleteReccord($master, 'id', $id, $this->user_id);
+        } elseif ($master == 'trip_request') {
+            $this->master_model->deleteReccord($master, 'req_id', $id, $this->user_id);
         } else {
             $this->master_model->deleteReccord($master, $master . '_id', $id, $this->user_id);
         }
@@ -130,6 +132,8 @@ class MasterController extends Controller
             header('Location: /trip/package/list');
         } else if ($master == 'fuel') {
             header('Location: /admin/vehicle/fuel');
+        } else if ($master == 'trip' || $master == 'trip_request') {
+            header('Location: /trip/list/all');
         } else {
             header('Location: /admin/' . $master . '/list');
         }

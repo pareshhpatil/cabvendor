@@ -44,11 +44,54 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label col-md-4">Extra KM<span class="required"></span></label>
+                <label class="control-label col-md-4">Start KM<span class="required"></span></label>
                 <div class="col-md-7">
-                    <input type="number" step="0.01" name="extra_km" value="" class="form-control">
+                    <input type="number" step="0.01" id="start_km" onblur="calculateExtrakm();" name="start_km" value="" class="form-control">
                 </div>
             </div>
+            <div class="form-group">
+                <label class="control-label col-md-4">End KM<span class="required"></span></label>
+                <div class="col-md-7">
+                    <input type="number" step="0.01" id="end_km" name="end_km" onblur="calculateExtrakm();" value="" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-4">Package KM<span class="required"></span></label>
+                <div class="col-md-7">
+                    <input type="number" step="0.01" id="package_km" onblur="calculateExtrakm();" value="" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-4">Extra KM<span class="required"></span></label>
+                <div class="col-md-7">
+                    <input type="number" step="0.01" id="extra_km" name="extra_km" value="" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-4">Start Time <span class="required">*</span></label>
+                <div class="col-md-7">
+                    <div class="bootstrap-timepicker">
+                        <div class="">
+                            <input type="datetime-local" required="" name="start_time" value="{{$det->date}}T{{$det->time}}" class="form-control">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-4">End Time <span class="required">*</span></label>
+                <div class="col-md-7">
+                    <div class="bootstrap-timepicker">
+                        <div class="">
+                            <input type="datetime-local" required="" name="end_time" value="{{$det->date}}T{{$det->time}}" class="form-control">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="form-group">
                 <label class="control-label col-md-4">Extra hour<span class="required"></span></label>
                 <div class="col-md-7">
@@ -68,18 +111,7 @@
                     <input type="number" step="0.01" name="driver_amount" value="" class="form-control">
                 </div>
             </div>
-            <div class="form-group">
-                <label class="control-label col-md-4">Start KM<span class="required"></span></label>
-                <div class="col-md-7">
-                    <input type="number" step="0.01" name="start_km" value="" class="form-control">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-md-4">End KM<span class="required"></span></label>
-                <div class="col-md-7">
-                    <input type="number" step="0.01" name="end_km" value="" class="form-control">
-                </div>
-            </div>
+
             <div class="form-group">
                 <label class="control-label col-md-4">Vendor amount<span class="required"></span></label>
                 <div class="col-md-7">
@@ -116,4 +148,9 @@
         </div>
     </form>
 </div>
+<script>
+    function calculateExtrakm() {
+        document.getElementById('extra_km').value = document.getElementById('end_km').value - document.getElementById('start_km').value - document.getElementById('package_km').value;
+    }
+</script>
 @endsection
