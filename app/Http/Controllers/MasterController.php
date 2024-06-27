@@ -116,6 +116,9 @@ class MasterController extends Controller
             $this->master_model->deleteReccord($master, 'id', $id, $this->user_id);
         } elseif ($master == 'trip_request') {
             $this->master_model->deleteReccord($master, 'req_id', $id, $this->user_id);
+        } elseif ($master == 'trip') {
+            $this->master_model->deleteReccord($master, 'trip_id', $id, $this->user_id);
+            $this->master_model->deleteReccord('trip_request', 'trip_id', $id, $this->user_id);
         } else {
             $this->master_model->deleteReccord($master, $master . '_id', $id, $this->user_id);
         }
