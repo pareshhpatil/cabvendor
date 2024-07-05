@@ -377,7 +377,6 @@ class TripController extends Controller
     public function completesave(Request $request)
     {
 
-        dd($request->all());
 
         $this->validateSession(array(1, 4));
         $data = [];
