@@ -368,7 +368,9 @@ class TripController extends Controller
         $rpdata['drop_location'] = $ride_data['end_location'];
 
         $this->trip_model->updateTable('ride_passenger', 'ride_id', $detail->ride_id, $rpdata);
-        $this->client->get('https://app.siddhivinayaktravelshouse.in/notification/trip/detail/' . $trip_id);
+        if (isset($request->notification_sent)) {
+            $this->client->get('https://app.siddhivinayaktravelshouse.in/notification/trip/detail/' . $trip_id);
+        }
         $this->setSuccess('Trip has been send successfully');
         header('Location: /trip/list/all');
         exit;
