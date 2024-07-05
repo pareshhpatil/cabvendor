@@ -313,8 +313,9 @@ class TripController extends Controller
         $data['title'] = 'Success Trip';
         $data['success'] = 'Trip has been scheduled successfully';
         $data['link'] = $link;
-
-        $this->client->get('https://app.siddhivinayaktravelshouse.in/notification/trip/detail/' . $trip_id);
+        if (isset($request->notification_sent)) {
+            $this->client->get('https://app.siddhivinayaktravelshouse.in/notification/trip/detail/' . $trip_id);
+        }
         return view('trip.saved', $data);
     }
 

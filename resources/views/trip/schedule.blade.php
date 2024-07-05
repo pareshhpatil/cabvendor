@@ -105,6 +105,12 @@
                     </select>
                 </div>
             </div>
+            <div class="form-group">
+                <label class="control-label col-md-4">Notification send?<span class="required">* </span></label>
+                <div class="col-md-7">
+                    <input type="checkbox" value="1" name="notification_sent">
+                </div>
+            </div>
 
 
             <div class="form-group">
