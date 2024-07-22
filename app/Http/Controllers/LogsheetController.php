@@ -598,7 +598,7 @@ class LogsheetController extends Controller
             $data['company'] = $company;
         }
 
-
+        $data['list'] = [];
         $packages = [];
         $extrakm = [];
         $extrahour = [];
@@ -675,7 +675,7 @@ class LogsheetController extends Controller
             if ($toll_parking > 0) {
                 $logsheet_detail[] = array('particular_name' => 'Toll /Parking', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => $toll_parking, 'is_deduct' => '0', 'id' => 0);
             }
-            $data['list'] = [];
+            
             $data['logsheet_detail'] = $logsheet_detail;
             $data['bill_type'] = 'fixed';
             $data['trip_ids'] = json_encode($_POST['trip_id']);
