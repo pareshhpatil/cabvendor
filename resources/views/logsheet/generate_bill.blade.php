@@ -74,12 +74,13 @@
             <!-- /.panel-body -->
         </div>
         @yield('middle_content')
-
+        @php($invoice_id=0)
+        @php($bill_date='')
         @if(isset($logsheet_detail) || !empty($casual_list))
         @isset($invoice)
         @php($bill_date=Carbon\Carbon::parse($invoice->bill_date)->format('d-m-Y'))
         @php($invoice_id=$invoice->invoice_id)
-        @elseif(isset($logsheet_detail))
+        @elseif(isset($logsheet_detail) && $trip_ids=='')
         @php($bill_date='')
         @php($invoice_id=0)
         @php($logsheet_detail[3]['qty']=$extra_hour)

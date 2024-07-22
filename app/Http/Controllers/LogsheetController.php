@@ -675,85 +675,86 @@ class LogsheetController extends Controller
             if ($toll_parking > 0) {
                 $logsheet_detail[] = array('particular_name' => 'Toll /Parking', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => $toll_parking, 'is_deduct' => '0', 'id' => 0);
             }
-            
+
+
             $data['logsheet_detail'] = $logsheet_detail;
             $data['bill_type'] = 'fixed';
             $data['trip_ids'] = json_encode($_POST['trip_id']);
-        }
+        } else {
+
+            if ($data['vehicle_id'] > 0) {
+                $list = $this->logsheet_model->getBillData($date, $data['company_id'], $data['vehicle_id']);
+                $int = 0;
+                foreach ($list as $k => $item) {
+
+                    $type = $item->type;
+                    $link2 = $this->encrypt->encode($item->logsheet_id);
+                    if (substr($item->total_time, 0, 1) == '-') {
+                        $datetime1 = strtotime($item->date . ' ' . $item->start_time);
+                        $todate = date('Y-m-d', strtotime($item->date . ' + 1 days'));
+                        $datetime2 = strtotime($todate . ' ' . $item->close_time);
+                        $interval = $datetime2 - $datetime1;
+
+                        $total_time = round($interval / 60 / 60, 2);
+
+                        $extra_time = $total_time - 12;
+
+                        if (substr($total_time, -2) == '.5') {
+                            $total_time = substr($total_time, 0, -2) . ':30';
+                        } elseif (substr($total_time, -3) == '.75') {
+                            $total_time = substr($total_time, 0, -3) + 1 . ':15';
+                        } else {
+                            $total_time = $total_time . ':00';
+                        }
 
 
-        if ($data['vehicle_id'] > 0 && $data['bill_type'] != 'casual') {
-            $list = $this->logsheet_model->getBillData($date, $data['company_id'], $data['vehicle_id']);
-            $int = 0;
-            foreach ($list as $k => $item) {
-
-                $type = $item->type;
-                $link2 = $this->encrypt->encode($item->logsheet_id);
-                if (substr($item->total_time, 0, 1) == '-') {
-                    $datetime1 = strtotime($item->date . ' ' . $item->start_time);
-                    $todate = date('Y-m-d', strtotime($item->date . ' + 1 days'));
-                    $datetime2 = strtotime($todate . ' ' . $item->close_time);
-                    $interval = $datetime2 - $datetime1;
-
-                    $total_time = round($interval / 60 / 60, 2);
-
-                    $extra_time = $total_time - 12;
-
-                    if (substr($total_time, -2) == '.5') {
-                        $total_time = substr($total_time, 0, -2) . ':30';
-                    } elseif (substr($total_time, -3) == '.75') {
-                        $total_time = substr($total_time, 0, -3) + 1 . ':15';
-                    } else {
-                        $total_time = $total_time . ':00';
+                        if (substr($extra_time, -2) == '.5') {
+                            $extra_time = substr($extra_time, 0, -2) . ':30';
+                        } elseif (substr($extra_time, -3) == '.75') {
+                            $extra_time = substr($extra_time, 0, -3) + 1 . ':15';
+                        } else {
+                            $extra_time = $extra_time . ':00';
+                        }
+                        $list[$int]->total_time = $total_time;
+                        $list[$int]->extra_time = $extra_time;
                     }
-
-
-                    if (substr($extra_time, -2) == '.5') {
-                        $extra_time = substr($extra_time, 0, -2) . ':30';
-                    } elseif (substr($extra_time, -3) == '.75') {
-                        $extra_time = substr($extra_time, 0, -3) + 1 . ':15';
-                    } else {
-                        $extra_time = $extra_time . ':00';
+                    if ($item->day_night == 'Night') {
+                        $list[$int]->extra_time = '00:00';
                     }
-                    $list[$int]->total_time = $total_time;
-                    $list[$int]->extra_time = $extra_time;
+                    $list[$int]->link = $link2;
+                    $int++;
                 }
-                if ($item->day_night == 'Night') {
-                    $list[$int]->extra_time = '00:00';
-                }
-                $list[$int]->link = $link2;
-                $int++;
-            }
 
 
-            if (empty($logsheet_detail)) {
-                $total_days = date(' t ', strtotime($date));
-                if ($this->admin_id == 3) {
-                    $array[] = array('particular_name' => 'Idea Cellular Limited, MUMBAI ' . $data['month'], 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => $vehicle->number, 'unit' => '3000', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => date('d-m-Y', strtotime($date)) . ' to ' . $total_days . date('-m-Y', strtotime($date)), 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => '3000kms /26day/12hrs', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => ' EXTRA KMS', 'unit' => '', 'qty' => '', 'rate' => '10.00', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => ' EXTRA HOURS', 'unit' => '', 'qty' => '', 'rate' => '100.00', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => ' DEDUCTION (-)', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '1', 'id' => 0);
-                    $array[] = array('particular_name' => 'Toll /Parking', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                if (empty($logsheet_detail)) {
+                    $total_days = date(' t ', strtotime($date));
+                    if ($this->admin_id == 3) {
+                        $array[] = array('particular_name' => 'Idea Cellular Limited, MUMBAI ' . $data['month'], 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => $vehicle->number, 'unit' => '3000', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => date('d-m-Y', strtotime($date)) . ' to ' . $total_days . date('-m-Y', strtotime($date)), 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => '3000kms /26day/12hrs', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => ' EXTRA KMS', 'unit' => '', 'qty' => '', 'rate' => '10.00', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => ' EXTRA HOURS', 'unit' => '', 'qty' => '', 'rate' => '100.00', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => ' DEDUCTION (-)', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '1', 'id' => 0);
+                        $array[] = array('particular_name' => 'Toll /Parking', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                    } else {
+                        $total_days = (float) $total_days;
+                        $day_rate = round(45000 / $total_days, 2);
+                        $array[] = array('particular_name' => 'Fixed monthly charges', 'unit' => 'Month', 'qty' => '1', 'rate' => '45000.00', 'amount' => '45000.00', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => 'Extra Day', 'unit' => 'Day', 'qty' => '', 'rate' => $day_rate, 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => 'Extra KM.', 'unit' => 'KM', 'qty' => '', 'rate' => '12.00', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => 'Extra Hour', 'unit' => 'Hour', 'qty' => '', 'rate' => '65.00', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                        $array[] = array('particular_name' => 'Break down', 'unit' => 'Day', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '1', 'id' => 0);
+                        $array[] = array('particular_name' => 'Toll /Parking', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                    }
+                    $logsheet_detail = $array;
                 } else {
-                    $total_days = (float) $total_days;
-                    $day_rate = round(45000 / $total_days, 2);
-                    $array[] = array('particular_name' => 'Fixed monthly charges', 'unit' => 'Month', 'qty' => '1', 'rate' => '45000.00', 'amount' => '45000.00', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => 'Extra Day', 'unit' => 'Day', 'qty' => '', 'rate' => $day_rate, 'amount' => '', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => 'Extra KM.', 'unit' => 'KM', 'qty' => '', 'rate' => '12.00', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => 'Extra Hour', 'unit' => 'Hour', 'qty' => '', 'rate' => '65.00', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
-                    $array[] = array('particular_name' => 'Break down', 'unit' => 'Day', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '1', 'id' => 0);
-                    $array[] = array('particular_name' => 'Toll /Parking', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => '', 'is_deduct' => '0', 'id' => 0);
+                    $logsheet_detail = json_decode(json_encode($logsheet_detail), true);
                 }
-                $logsheet_detail = $array;
-            } else {
-                $logsheet_detail = json_decode(json_encode($logsheet_detail), true);
-            }
-            $data['logsheet_detail'] = $logsheet_detail;
+                $data['logsheet_detail'] = $logsheet_detail;
 
-            $data['list'] = $list;
+                $data['list'] = $list;
+            }
         }
 
 

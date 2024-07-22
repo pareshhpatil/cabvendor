@@ -242,7 +242,7 @@ class Logsheet extends Model
     {
         $retObj = DB::table('trip as t')
             ->join('company_casual_package as p', 't.package_id', '=', 'p.id')
-            ->select(DB::raw("t.*,p.package_name"))
+            ->select(DB::raw("t.*,p.vehicle_type as vehicle_type,p.package_name"))
             ->where('t.is_active', 1)
             ->where('t.status', 'Completed')
             ->where('billed', 0)
