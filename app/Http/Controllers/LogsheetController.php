@@ -279,6 +279,7 @@ class LogsheetController extends Controller
 
 
         $pdf = PDF::loadView('pdf.bill', $data);
+
         return $pdf->download('bill_' . $vehicle->name . '_' . $invoice->invoice_number . '.pdf');
     }
 
@@ -512,6 +513,10 @@ class LogsheetController extends Controller
             }
         }
 
+        if ($_POST['trip_ids'] != '') {
+            $this->master_model->updateTableColumn('trip', 'billed', 1, 'trip_id', json_decode($_POST['trip_ids'], 1), $this->user_id);
+        }
+
         $this->setSuccess('Logsheet Bill has been save successfully');
         header('Location: /admin/logsheet');
         exit;
@@ -554,6 +559,11 @@ class LogsheetController extends Controller
             $data['company_id'] = 0;
             $data['month'] = '';
         }
+        $data['bill_type'] = 'fixed';
+        if ($link == 'casual') {
+            $data['bill_type'] = 'casual';
+            $link = null;
+        }
 
         if ($link != null) {
             $id = $this->encrypt->decode($link);
@@ -572,7 +582,107 @@ class LogsheetController extends Controller
         }
 
         $type = 1;
+        $list = [];
+        if ($data['bill_type'] == 'casual' && $data['company_id'] > 0 && empty($_POST['trip_id'])) {
+            $casual_list = $this->logsheet_model->getCasualPendingBills($data['company_id']);
+            $data['casual_list'] = $casual_list;
+            $data['invoice_id'] = 0;
+        }
+
         if ($data['vehicle_id'] > 0) {
+            $sequence = $this->master_model->getMaster('sequence', $this->admin_id);
+            $vehicle = $this->master_model->getMasterDetail('vehicle', 'vehicle_id', $data['vehicle_id']);
+            $company = $this->master_model->getMasterDetail('company', 'company_id', $data['company_id']);
+            $data['vehicle'] = $vehicle;
+            $data['sequence'] = $sequence;
+            $data['company'] = $company;
+        }
+
+
+        $packages = [];
+        $extrakm = [];
+        $extrahour = [];
+        $driverallownce = 0;
+        $toll_parking = 0;
+        $data['trip_ids'] = '';
+        if (!empty($_POST['trip_id'])) {
+            foreach ($_POST['trip_id'] as $trip_id) {
+                $array['vehicle_type'] = $_POST['vehicle_type' . $trip_id];
+                $array['package_name'] = $_POST['package_name' . $trip_id];
+                $array['package_amount'] = $_POST['package_amount' . $trip_id];
+                $array['extra_km'] = $_POST['extra_km' . $trip_id];
+                $array['extra_km_rate'] = $_POST['extra_km_rate' . $trip_id];
+                $array['extra_hour'] = $_POST['extra_hour' . $trip_id];
+                $array['extra_hour_rate'] = $_POST['extra_hour_rate' . $trip_id];
+                $array['driver_amount'] = $_POST['driver_amount' . $trip_id];
+                $array['toll_parking'] = $_POST['toll_parking' . $trip_id];
+                $driverallownce = $driverallownce + $array['driver_amount'];
+                $toll_parking = $toll_parking + $array['toll_parking'];
+
+
+                if (isset($packages[$array['package_name'] . $array['package_amount']])) {
+                    $parray = $packages[$array['package_name'] . $array['package_amount']];
+                    $parray['qty'] = $parray['qty'] + 1;
+                    $parray['amount'] = $parray['amount'] + $array['package_amount'];
+                    $packages[$array['package_name'] . $array['package_amount']] = $parray;
+                } else {
+                    $packages[$array['package_name'] . $array['package_amount']] =
+                        array('particular_name' => $array['package_name'], 'unit' => 'Trip', 'qty' => 1, 'rate' => $array['package_amount'], 'amount' => $array['package_amount'], 'is_deduct' => '0', 'id' => 0);
+                }
+
+                if ($array['extra_km'] > 0) {
+                    if (isset($extrakm[$array['vehicle_type'] . $array['extra_km_rate']])) {
+                        $parray = $extrakm[$array['vehicle_type'] . $array['extra_km_rate']];
+                        $parray['qty'] = $parray['qty'] + $array['extra_km'];
+                        $extra_km_amount = $array['extra_km'] * $array['extra_km_rate'];
+                        $parray['amount'] = $parray['amount'] + $extra_km_amount;
+                        $extrakm[$array['vehicle_type'] . $array['extra_km_rate']] = $parray;
+                    } else {
+                        $extrakm[$array['vehicle_type'] . $array['extra_km_rate']] =
+                            array('particular_name' => $array['vehicle_type'] . ' Extra KM', 'unit' => 'KM', 'qty' => $array['extra_km'], 'rate' => $array['extra_km_rate'], 'amount' => $array['extra_km'] * $array['extra_km_rate'], 'is_deduct' => '0', 'id' => 0);
+                    }
+                }
+
+                if ($array['extra_hour'] > 0) {
+                    if (isset($extrahour[$array['vehicle_type'] . $array['extra_hour_rate']])) {
+                        $parray = $extrahour[$array['vehicle_type'] . $array['extra_hour_rate']];
+                        $parray['qty'] = $parray['qty'] + $array['extra_hour'];
+                        $extra_hour_amount = $array['extra_hour'] * $array['extra_hour_rate'];
+                        $parray['amount'] = $parray['amount'] + $extra_hour_amount;
+                        $extrahour[$array['vehicle_type'] . $array['extra_hour_rate']] = $parray;
+                    } else {
+                        $extrahour[$array['vehicle_type'] . $array['extra_hour_rate']] =
+                            array('particular_name' => $array['vehicle_type'] . ' Extra Hour', 'unit' => 'Hour', 'qty' => $array['extra_hour'], 'rate' => $array['extra_hour_rate'], 'amount' => $array['extra_hour'] * $array['extra_hour_rate'], 'is_deduct' => '0', 'id' => 0);
+                    }
+                }
+            }
+
+            foreach ($packages as $row) {
+                $logsheet_detail[] = $row;
+            }
+
+            foreach ($extrakm as $row) {
+                $logsheet_detail[] = $row;
+            }
+
+            foreach ($extrahour as $row) {
+                $logsheet_detail[] = $row;
+            }
+
+            if ($driverallownce > 0) {
+                $logsheet_detail[] = array('particular_name' => 'Driver allowance', 'unit' => 'DA', 'qty' => '1', 'rate' => $driverallownce, 'amount' => $driverallownce, 'is_deduct' => '0', 'id' => 0);
+            }
+            if ($toll_parking > 0) {
+                $logsheet_detail[] = array('particular_name' => 'Toll /Parking', 'unit' => '', 'qty' => '', 'rate' => '', 'amount' => $toll_parking, 'is_deduct' => '0', 'id' => 0);
+            }
+            $data['list'] = [];
+            $data['logsheet_detail'] = $logsheet_detail;
+            $data['bill_type'] = 'fixed';
+            $data['trip_ids'] = json_encode($_POST['trip_id']);
+        }
+
+
+        if ($data['vehicle_id'] > 0 && $data['bill_type'] != 'casual') {
             $list = $this->logsheet_model->getBillData($date, $data['company_id'], $data['vehicle_id']);
             $int = 0;
             foreach ($list as $k => $item) {
@@ -616,10 +726,6 @@ class LogsheetController extends Controller
             }
 
 
-            $sequence = $this->master_model->getMaster('sequence', $this->admin_id);
-            $vehicle = $this->master_model->getMasterDetail('vehicle', 'vehicle_id', $data['vehicle_id']);
-            $company = $this->master_model->getMasterDetail('company', 'company_id', $data['company_id']);
-
             if (empty($logsheet_detail)) {
                 $total_days = date(' t ', strtotime($date));
                 if ($this->admin_id == 3) {
@@ -646,11 +752,15 @@ class LogsheetController extends Controller
                 $logsheet_detail = json_decode(json_encode($logsheet_detail), true);
             }
             $data['logsheet_detail'] = $logsheet_detail;
-            $data['vehicle'] = $vehicle;
-            $data['sequence'] = $sequence;
-            $data['company'] = $company;
+
             $data['list'] = $list;
         }
+
+
+
+
+
+
         $vehicle_list = $this->master_model->getMaster('vehicle', $this->admin_id);
         $company_list = $this->master_model->getMaster('company', $this->admin_id);
         $expense_list = array();
@@ -862,22 +972,56 @@ class LogsheetController extends Controller
             $data['sequence'] = $sequence;
             $data['company'] = $company;
             if (count($list) == 0) {
+                if ($data['company_id'] == 105) {
 
-                $lastday = date('t', strtotime($date));
-                for ($i = 1; $i <= $lastday; $i++) {
-                    $array['date'] = date("Y-m-" . $i, strtotime($date));
-                    $array['holiday'] = $this->isWeekend($array['date']);
-                    $array['start_km'] = '';
-                    $array['end_km'] = '';
-                    $array['total_km'] = '';
-                    $array['start_time'] = '09:00';
-                    $array['close_time'] = '21:00';
-                    $array['total_time'] = '12:00';
-                    $array['extra_time'] = '00:00';
-                    $array['toll'] = '0';
-                    $array['remark'] = ($array['holiday'] == 1) ? 'Sunday' : '';
-                    $list[] = $array;
+                    $lastday = date('t', strtotime($date));
+                    for ($i = 26; $i <= $lastday; $i++) {
+                        $array['date'] = date("Y-m-" . $i, strtotime($date));
+                        $array['holiday'] = $this->isWeekend($array['date']);
+                        $array['start_km'] = '';
+                        $array['end_km'] = '';
+                        $array['total_km'] = '';
+                        $array['start_time'] = '09:00';
+                        $array['close_time'] = '21:00';
+                        $array['total_time'] = '12:00';
+                        $array['extra_time'] = '00:00';
+                        $array['toll'] = '0';
+                        $array['remark'] = ($array['holiday'] == 1) ? 'Sunday' : '';
+                        $list[] = $array;
+                    }
+
+                    for ($i = 1; $i <= 25; $i++) {
+                        $array['date'] = date("Y-m-" . $i, strtotime($date));
+                        $array['holiday'] = $this->isWeekend($array['date']);
+                        $array['start_km'] = '';
+                        $array['end_km'] = '';
+                        $array['total_km'] = '';
+                        $array['start_time'] = '09:00';
+                        $array['close_time'] = '21:00';
+                        $array['total_time'] = '12:00';
+                        $array['extra_time'] = '00:00';
+                        $array['toll'] = '0';
+                        $array['remark'] = ($array['holiday'] == 1) ? 'Sunday' : '';
+                        $list[] = $array;
+                    }
+                } else {
+                    $lastday = date('t', strtotime($date));
+                    for ($i = 1; $i <= $lastday; $i++) {
+                        $array['date'] = date("Y-m-" . $i, strtotime($date));
+                        $array['holiday'] = $this->isWeekend($array['date']);
+                        $array['start_km'] = '';
+                        $array['end_km'] = '';
+                        $array['total_km'] = '';
+                        $array['start_time'] = '09:00';
+                        $array['close_time'] = '21:00';
+                        $array['total_time'] = '12:00';
+                        $array['extra_time'] = '00:00';
+                        $array['toll'] = '0';
+                        $array['remark'] = ($array['holiday'] == 1) ? 'Sunday' : '';
+                        $list[] = $array;
+                    }
                 }
+
 
                 $data['list'] = json_decode(json_encode($list));
             } else {
@@ -889,7 +1033,7 @@ class LogsheetController extends Controller
         $expense_list = array();
         if ($link == null) {
             $bill_model = new Bill();
-            $expense_list = $bill_model->getPendingRequest(0,$this->admin_id);
+            $expense_list = $bill_model->getPendingRequest(0, $this->admin_id);
         }
 
         $data['title'] = 'Generate Monthly Logsheet';

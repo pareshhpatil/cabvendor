@@ -85,6 +85,16 @@ class Master extends Model
             ]);
     }
 
+    public function updateTableColumnIn($table, $column_name, $value, $search_column, $id, $user_id)
+    {
+        DB::table($table)
+            ->where($search_column, $id)
+            ->update([
+                $column_name => $value,
+                'last_update_by' => $user_id
+            ]);
+    }
+
     public function saveEmployee($request, $code, $name, $email, $mobile, $pan, $address, $adharcard, $license, $image_file, $payment, $join_date, $payment_day, $account_no, $account_holder_name, $ifsc_code, $bank_name, $account_type, $admin_id, $user_id)
     {
         $photo = $this->uploadImage($request);

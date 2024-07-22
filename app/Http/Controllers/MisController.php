@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Session;
 use PDF;
 use Excel;
+use App\Exports\ExcelExport;
 
 class MisController extends Controller
 {
@@ -246,7 +247,8 @@ class MisController extends Controller
                 $export[$key]['Shift Time'] = date('h:i', strtotime($row['shift_time']));
                 $export[$key]['Toll'] = $row['toll'];
             }
-            $this->exportExcel($export, 'MIS');
+			return Excel::download(new ExcelExport($export), 'MIS.xlsx');
+           return $this->exportExcel($export, 'MIS');
         }
 
         $int = 0;
@@ -283,6 +285,7 @@ class MisController extends Controller
             $company_id = $_POST['company_id'];
             $invoice_list = $this->mis_model->getMISListCompany($this->admin_id,$from_date, $to_date, $company_id);
         }
+		$export=[];
         if (isset($_POST['export'])) {
             $array = json_decode(json_encode($invoice_list), True);
             foreach ($array as $key => $row) {
@@ -306,9 +309,12 @@ class MisController extends Controller
                 $export[$key]['Pickup time'] = date('h:i', strtotime($row['pickup_time']));
                 $export[$key]['Drop time'] = date('h:i', strtotime($row['drop_time']));
                 $export[$key]['Toll'] = $row['toll'];
+				if($this->user_id==36 || $this->user_id==8)
+				{
+					$export[$key]['Vendor Amount'] = $row['vendor_amount'];
+				}
                 if ($this->user_id == 8) {
                     $export[$key]['SVK Amount'] = $row['svk_amount'];
-                    $export[$key]['Vendor Amount'] = $row['vendor_amount'];
                     $export[$key]['Admin Amount'] = $row['admin_amount'];
                     $export[$key]['Company Amount'] = $row['company_amount'];
                 }
@@ -317,7 +323,11 @@ class MisController extends Controller
                 $export[$key]['Employee count'] = $row['user_count'];
                 $export[$key]['Remark'] = $row['remark'];
             }
+			if(!empty($export))
+			{
+			return Excel::download(new ExcelExport($export), 'MIS.xlsx');
             $this->exportExcel($export, 'MIS');
+			}
         }
 
         $int = 0;
@@ -360,6 +370,12 @@ class MisController extends Controller
     public function exportExcel($column, $name)
     {
         try {
+			
+			
+			
+			
+			return Excel::download(new ExcelExport($column), $name.'.xlsx');
+			
             Excel::create($name, function ($excel) use ($column) {
                 $excel->sheet('Sheet 1', function ($sheet) use ($column) {
                     $sheet->fromArray($column);

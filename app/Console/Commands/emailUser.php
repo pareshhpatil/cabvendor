@@ -37,6 +37,7 @@ class emailUser extends Command
      */
     public function handle()
     {
+		die('hiii');
         Log::info('cron running..'.time());
     }
 }

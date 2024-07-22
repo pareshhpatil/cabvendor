@@ -207,15 +207,46 @@ class Logsheet extends Model
 
     public function getBillData($date, $company_id, $vehicle_id)
     {
-        $retObj = DB::table('logsheet_bill')
-            ->select(DB::raw("*,TIMEDIFF(close_time,start_time) as total_time,TIMEDIFF( TIMEDIFF( close_time,start_time),'12:00:00') as extra_time"))
-            ->where('is_active', 1)
-            ->where('status', 1)
-            ->where('company_id', $company_id)
-            ->where('vehicle_id', $vehicle_id)
-            ->where(DB::raw("(DATE_FORMAT(date,'%Y-%m'))"), date('Y-m', strtotime($date)))
-            ->orderBy('date', 'asc')
-            ->orderBy('start_km', 'asc')
+        if ($company_id == 105) {
+            $startDate = new \DateTime($date); // Replace with your desired starting date
+            $to_date = $startDate->format('Y-m-25');
+            $startDate->modify('-1 month');
+            $from_date = $startDate->format('Y-m-26');
+            $retObj = DB::table('logsheet_bill')
+                ->select(DB::raw("*,TIMEDIFF(close_time,start_time) as total_time,TIMEDIFF( TIMEDIFF( close_time,start_time),'12:00:00') as extra_time"))
+                ->where('is_active', 1)
+                ->where('status', 1)
+                ->where('company_id', $company_id)
+                ->where('vehicle_id', $vehicle_id)
+                ->whereDate('date', '>=', $from_date)
+                ->whereDate('date', '<=', $to_date)
+                ->orderBy('date', 'asc')
+                ->orderBy('start_km', 'asc')
+                ->get();
+        } else {
+            $retObj = DB::table('logsheet_bill')
+                ->select(DB::raw("*,TIMEDIFF(close_time,start_time) as total_time,TIMEDIFF( TIMEDIFF( close_time,start_time),'12:00:00') as extra_time"))
+                ->where('is_active', 1)
+                ->where('status', 1)
+                ->where('company_id', $company_id)
+                ->where('vehicle_id', $vehicle_id)
+                ->where(DB::raw("(DATE_FORMAT(date,'%Y-%m'))"), date('Y-m', strtotime($date)))
+                ->orderBy('date', 'asc')
+                ->orderBy('start_km', 'asc')
+                ->get();
+        }
+        return $retObj;
+    }
+
+    public function getCasualPendingBills($company_id)
+    {
+        $retObj = DB::table('trip as t')
+            ->join('company_casual_package as p', 't.package_id', '=', 'p.id')
+            ->select(DB::raw("t.*,p.package_name"))
+            ->where('t.is_active', 1)
+            ->where('t.status', 'Completed')
+            ->where('billed', 0)
+            ->where('t.company_id', $company_id)
             ->get();
         return $retObj;
     }

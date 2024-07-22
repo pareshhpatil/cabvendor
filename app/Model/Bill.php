@@ -269,4 +269,31 @@ class Bill extends Model
                 'last_update_by' => $user_id
             ]);
     }
+	
+	public function updateWhatsappStatus($id, $status,$time)
+    {
+        DB::table('whatsapp_messages')
+            ->where('message_id', $id)
+            ->update([
+                'status' => $status,
+                'last_update_date' => date('Y-m-d H:i:s', $time)
+            ]);
+    }
+	
+	 public function saveWhatsapp($mobile, $name, $type, $status, $message_type, $message, $message_id)
+    {
+        $id = DB::table('whatsapp_messages')->insertGetId(
+            [
+                'mobile' => $mobile,
+                'name' => $name,
+                'type' => $type,
+                'status' => $status,
+                'message_type' => $message_type,
+                'message' => $message,
+                'message_id' => $message_id,
+                'created_date' => date('Y-m-d H:i:s')
+            ]
+        );
+        return $id;
+    }
 }
