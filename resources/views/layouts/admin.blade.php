@@ -158,6 +158,10 @@
                                     <a href="/trip/package/list">
                                         <i class="fa fa-circle-o"></i> Package</a>
                                 </li>
+                                <li>
+                                    <a href="/admin/logsheet/generatebill/casual">
+                                        <i class="fa fa-circle-o"></i> Create Invoice</a>
+                                </li>
                                 
                             </ul>
                         </li>
