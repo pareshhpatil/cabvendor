@@ -309,7 +309,7 @@ class TripController extends Controller
             $pdata['mobile'] = $mobile;
             $pdata['gender'] = 'Male';
             $pdata['address'] = $detail->pickup_location;
-            $passenger_id = $this->trip_model->getMasterValue('passenger', 'employee_name', $pdata['name'], 'id', ['mobile' => $mobile, 'project_id' => $project_id]);
+            $passenger_id = $this->master_model->getMasterValue('passenger', 'employee_name', $pdata['name'], 'id', ['mobile' => $mobile, 'project_id' => $project_id]);
             if ($passenger_id == false) {
                 $passenger_id = $this->trip_model->savePassenger($pdata, $this->user_id);
             }
