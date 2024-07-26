@@ -53,12 +53,17 @@ class Master extends Model
         return $retObj;
     }
 
-    public function getMasterValue($table, $column, $id, $value)
+    public function getMasterValue($table, $column, $id, $value, $array = [])
     {
         $retObj = DB::table($table)
             ->select(DB::raw($value))
-            ->where($column, $id)
-            ->first();
+            ->where($column, $id);
+        if (!empty($array)) {
+            foreach ($array as $k => $v) {
+                $retObj = $retObj->where($k, $v);
+            }
+        }
+        $retObj = $retObj->first();
         if (empty($retObj)) {
             return false;
         }
@@ -516,7 +521,7 @@ class Master extends Model
         return $id;
     }
 
-    public function updateTransaction($id, $status, $referenceId, $utr, $json,$message)
+    public function updateTransaction($id, $status, $referenceId, $utr, $json, $message)
     {
         DB::table('payment_transaction')
             ->where('id', $id)

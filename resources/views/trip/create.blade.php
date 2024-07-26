@@ -70,8 +70,11 @@
             <div id="passengers_name">
                 <div class="form-group">
                     <label class="control-label col-md-4">Passenger Name<span class="required"> </span></label>
-                    <div class="col-md-7">
-                        <input type="text" name="passengers_name[]" value="" class="form-control">
+                    <div class="col-md-4">
+                        <input type="text" name="passengers_name[]" placeholder="Name" value="" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="passengers_mobile[]" placeholder="Mobile" value="" class="form-control">
                     </div>
                 </div>
             </div>

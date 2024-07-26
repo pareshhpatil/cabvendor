@@ -346,7 +346,7 @@ function addPassengers(total) {
     var i;
     var text = '';
     for (i = 0; i < total; i++) {
-        text += '<div class="form-group"><label class="control-label col-md-4">Passenger ' + Number(i + 1) + ' Name<span class="required"> </span></label><div class="col-md-7"><input type="text" name="passengers_name[]" value="" class="form-control"></div></div>';
+        text += '<div class="form-group"><label class="control-label col-md-4">Passenger ' + Number(i + 1) + ' Name<span class="required"> </span></label><div class="col-md-4"><input type="text" name="passengers_name[]" placeholder="Name" value="" class="form-control"></div><div class="col-md-3"><input type="text" name="passengers_mobile[]" placeholder="Mobile"  value="" class="form-control"></div></div>';
     }
     document.getElementById('passengers_name').innerHTML = text;
 }

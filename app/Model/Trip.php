@@ -138,6 +138,7 @@ class Trip extends Model
                 'start_location' => $data['start_location'],
                 'end_location' => $data['end_location'],
                 'created_by' => $user_id,
+                'casual' => 1,
                 'created_date' => date('Y-m-d H:i:s'),
                 'last_update_by' => $user_id
             ]

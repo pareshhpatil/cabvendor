@@ -66,7 +66,15 @@ class TripController extends Controller
         $time = date('H:i:s', strtotime($request->pickup_time));
         $data['date'] = $pickup_date;
         $data['pickup_time'] = $time;
-        $data['passengers'] = implode(',', $_POST['passengers_name']);
+        $passengers = [];
+        foreach ($_POST['passengers_name'] as $key => $name) {
+            if ($_POST['passengers_mobile'][$key] != '') {
+                $passengers[] = $name . ' - ' . $_POST['passengers_mobile'][$key];
+            } else {
+                $passengers[] = $name;
+            }
+        }
+        $data['passengers'] = implode(',', $passengers);
         $trip_id = $this->trip_model->saveTrip($data, $this->user_id);
 
         $link = $this->encrypt->encode($trip_id);
@@ -272,7 +280,8 @@ class TripController extends Controller
 
 
         $ride_data['title'] = 'Casual duty for ' . $detail->passengers;
-        $ride_data['project_id'] = '5';
+        $project_id = $this->master_model->getMasterValue('project', 'company_id', $detail->company_id, 'project_id');
+        $ride_data['project_id'] = ($project_id == false) ? 5 : $project_id;
         $ride_data['driver_id'] = $driver_id;
         $ride_data['vehicle_id'] = $_POST['vehicle_id'];
         $ride_data['date'] = $detail->date;
@@ -289,14 +298,21 @@ class TripController extends Controller
             // $this->sms_send($mobile, $sms);
         }
         foreach (explode(',', $data['passengers']) as $name) {
-            $pdata['name'] = $name;
-            $pdata['project_id'] = 5;
+            $mobile = '';
+            $name_array = explode(' - ', $name);
+            if (isset($name_array[1])) {
+                $mobile = $name_array[1];
+            }
+            $pdata['name'] = $name_array[0];
+            $pdata['project_id'] = $project_id;
             $pdata['location'] = '';
-            $pdata['mobile'] = '';
+            $pdata['mobile'] = $mobile;
             $pdata['gender'] = 'Male';
             $pdata['address'] = $detail->pickup_location;
-            $passenger_id = $this->trip_model->savePassenger($pdata, $this->user_id);
-
+            $passenger_id = $this->trip_model->getMasterValue('passenger', 'employee_name', $pdata['name'], 'id', ['mobile' => $mobile, 'project_id' => $project_id]);
+            if ($passenger_id == false) {
+                $passenger_id = $this->trip_model->savePassenger($pdata, $this->user_id);
+            }
             $rpdata['passenger_id'] = $passenger_id;
             $rpdata['ride_id'] = $ride_id;
             $rpdata['pickup_time'] = $ride_data['start_time'];
