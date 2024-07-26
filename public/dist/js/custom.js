@@ -164,6 +164,7 @@ function saveCompanyMis() {
             data: data,
             success: function (data) {
                 _("loaded_n_total").innerHTML = data;
+				alert(data);
 				if(document.getElementById('id').value>0)
 				{
 					window.location.href = "/admin/mis/listmiscompany";
