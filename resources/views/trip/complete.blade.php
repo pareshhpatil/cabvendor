@@ -34,7 +34,7 @@
             <div class="form-group">
                 <label class="control-label col-md-4">Package<span class="required">* </span></label>
                 <div class="col-md-7">
-                    <select name="package_id" required class="form-control select2" data-placeholder="Select...">
+                    <select name="package_id" required class="form-control" data-placeholder="Select...">
                         <option value="">Select package</option>
                         @foreach ($package_list as $item)
                         <option value="{{$item->id}}">{{$item->package_name}}</option>
