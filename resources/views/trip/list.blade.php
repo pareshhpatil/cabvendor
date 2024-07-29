@@ -43,6 +43,9 @@
                                 @if($item->status=='Assigned')
                                 <a href="/trip/complete/{{$item->link}}" target="_BLANK" class="btn btn-xs btn-primary">Complete</a>
                                 <a href="/trip/update/{{$item->link}}" target="_BLANK" class="btn btn-xs btn-warning">Update</a>
+                                @if(isset($item->ride_id))
+                                <a href="https://app.siddhivinayaktravelshouse.in/driver/app-ride/{{$item->ride_id}}" target="_BLANK" class="btn btn-xs btn-primary">Status</a>
+                                @endif
                                 <a href="#" onclick="document.getElementById('deleteanchor').href = '/admin/trip/delete/{{$item->link}}'" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#modal-danger"><i class="fa fa-remove"></i></a>
                                 @endif
                                 @if($item->status=='Completed')

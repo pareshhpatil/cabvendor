@@ -110,6 +110,7 @@ class TripController extends Controller
             $link = '';
             if ($item->trip_id > 0) {
                 $link = $this->encrypt->encode($item->trip_id);
+                $list[$int]->ride_id = $this->master_model->getMasterValue('trip', 'trip_id', $item->trip_id, 'ride_id');
             }
             $list[$int]->req_link = $this->encrypt->encode($item->req_id);
             $list[$int]->link = $link;
