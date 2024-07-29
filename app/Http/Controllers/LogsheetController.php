@@ -514,7 +514,10 @@ class LogsheetController extends Controller
         }
 
         if ($_POST['trip_ids'] != '') {
-            $this->master_model->updateTableColumn('trip', 'billed', 1, 'trip_id', json_decode($_POST['trip_ids'], 1), $this->user_id);
+            $trip_ids = json_decode($_POST['trip_ids'], 1);
+            if (is_array($trip_ids)) {
+                $this->master_model->updateTableColumn('trip', 'billed', 1, 'trip_id', $trip_ids, $this->user_id);
+            }
         }
 
         $this->setSuccess('Logsheet Bill has been save successfully');
