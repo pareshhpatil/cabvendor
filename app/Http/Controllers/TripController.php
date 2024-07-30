@@ -90,7 +90,7 @@ class TripController extends Controller
         return view('trip.saved', $data);
     }
 
-    public function listtrip($type = 'all')
+    public function listtrip($type = 'upcoming')
     {
         $this->validateSession(array(1, 2, 3, 4));
         if ($type == 'all') {
@@ -118,6 +118,7 @@ class TripController extends Controller
         }
         $data['addnewlink'] = '/trip/add';
         $data['list'] = $list;
+        $data['type'] = $type;
         $data['current_date'] = date('d-m-Y');
         $data['title'] = ucfirst($type) . ' Trips';
         return view('trip.list', $data);

@@ -2,6 +2,16 @@
 
 @section('content')
 <div class="row">
+    <div class="col-lg-3">
+        <select onchange="redirect(this.value)" class="form-control">
+            <option @if($type=='upcoming') selected @endif value="upcoming">Pending</option>
+            <option @if($type=='past') selected @endif value="past">Past</option>
+            <option @if($type=='all') selected @endif value="all">All</option>
+        </select>
+    </div>
+</div>
+<br>
+<div class="row">
     <div class="col-lg-12">
         @isset($success_message)
         <div class="alert alert-success alert-dismissible">
@@ -19,10 +29,9 @@
                             <th>Vehicle Type </th>
                             <th>Date Time </th>
                             <th>Pickup location </th>
-                            <th>Drop location </th>
                             <th>Passengers </th>
                             <th>Status </th>
-                            <th style="width: 70px;">Action </th>
+                            <th style="width: 4.375rem;">Action </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -33,7 +42,6 @@
                             <td>{{$item->vehicle_type}}</td>
                             <td>{{ \Carbon\Carbon::parse($item->date)->format('d M Y')}} {{ \Carbon\Carbon::parse($item->time)->format('h:i A')}}</td>
                             <td>{{$item->pickup_location}}</td>
-                            <td>{{$item->drop_location}}</td>
                             <td>{{$item->passengers}}</td>
                             <td>
                                 {{$item->status}}
@@ -91,4 +99,11 @@
     </div>
     <!-- /.modal-dialog -->
 </div>
+
+<script>
+    function redirect(type)
+    {
+        window.location.href = "/trip/list/"+type;
+    }
+</script>
 @endsection

@@ -151,7 +151,7 @@
                                         <i class="fa fa-circle-o"></i> Create</a>
                                 </li>
                                 <li>
-                                    <a href="/trip/list/all">
+                                    <a href="/trip/list/upcoming">
                                         <i class="fa fa-circle-o"></i> List</a>
                                 </li>
                                 <li>
