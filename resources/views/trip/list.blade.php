@@ -5,7 +5,7 @@
     <div class="col-lg-3">
         <select onchange="redirect(this.value)" class="form-control">
             <option @if($type=='upcoming') selected @endif value="upcoming">Pending</option>
-            <option @if($type=='past') selected @endif value="past">Past</option>
+            <option @if($type=='past') selected @endif value="past">Completed</option>
             <option @if($type=='all') selected @endif value="all">All</option>
         </select>
     </div>
