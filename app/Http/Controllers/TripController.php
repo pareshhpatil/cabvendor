@@ -304,6 +304,8 @@ class TripController extends Controller
             $name_array = explode(' - ', $name);
             if (isset($name_array[1])) {
                 $mobile = $name_array[1];
+                $mobile = str_replace('+91', '', $mobile);
+                $mobile = str_replace(' ', '', $mobile);
             }
             $pdata['name'] = $name_array[0];
             $pdata['project_id'] = $project_id;
