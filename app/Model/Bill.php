@@ -105,7 +105,7 @@ class Bill extends Model
             ->where('a.is_active', 1)
             ->where('a.status', 0)
             ->groupBy(['employee_id', 'paid_date'])
-            ->select(DB::raw('paid_date,a.employee_id,group_concat(a.narrative) as narrative,sum(amount) as amount,group_concat(v.name) as name,max(transaction_id) as transaction_id,group_concat(v.account_no) as account_no,group_concat(v.account_holder_name) as account_holder_name'))
+            ->select(DB::raw('paid_date,a.employee_id,group_concat(a.narrative) as narrative,sum(amount) as amount,group_concat(v.name) as name,max(transaction_id) as transaction_id,max(v.account_no) as account_no,max(v.account_holder_name) as account_holder_name'))
             ->get();
         return $retObj;
     }
